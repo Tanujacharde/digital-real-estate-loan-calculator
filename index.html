@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Digital Real Estate Loan Calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 420px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1d3557;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1d3557;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            background: #1d3557;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #457b9d;
+        }
+
+        .reset {
+            background: #888;
+            margin-top: 10px;
+        }
+
+        .reset:hover {
+            background: #666;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #eef4fa;
+            border-radius: 10px;
+        }
+
+        .result h2 {
+            text-align: center;
+            color: #1d3557;
+            margin-bottom: 15px;
+        }
+
+        .result p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .result span {
+            float: right;
+            font-weight: bold;
+            color: #1d3557;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Real Estate Loan Calculator</h1>
+
+        <p class="subtitle">
+            Calculate your monthly home loan EMI
+        </p>
+
+        <!-- Loan Amount -->
+        <label for="loanAmount">Loan Amount (₹)</label>
+        <input
+            type="number"
+            id="loanAmount"
+            placeholder="Enter loan amount"
+        >
+
+        <!-- Interest Rate -->
+        <label for="interestRate">Annual Interest Rate (%)</label>
+        <input
+            type="number"
+            id="interestRate"
+            placeholder="Enter interest rate"
+            step="0.01"
+        >
+
+        <!-- Loan Tenure -->
+        <label for="loanTenure">Loan Tenure (Years)</label>
+        <input
+            type="number"
+            id="loanTenure"
+            placeholder="Enter tenure"
+        >
+
+        <button onclick="calculateLoan()">
+            Calculate EMI
+        </button>
+
+        <button class="reset" onclick="resetCalculator()">
+            Reset
+        </button>
+
+        <p id="error" class="error"></p>
+
+        <!-- Result -->
+        <div class="result">
+
+            <h2>Loan Details</h2>
+
+            <p>
+                Monthly EMI:
+                <span id="emi">₹0</span>
+            </p>
+
+            <p>
+                Total Interest:
+                <span id="totalInterest">₹0</span>
+            </p>
+
+            <p>
+                Total Payment:
+                <span id="totalPayment">₹0</span>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function calculateLoan() {
+
+            // Get values from input fields
+            let loanAmount =
+                parseFloat(document.getElementById("loanAmount").value);
+
+            let annualRate =
+                parseFloat(document.getElementById("interestRate").value);
+
+            let years =
+                parseFloat(document.getElementById("loanTenure").value);
+
+            let error =
+                document.getElementById("error");
+
+
+            // Check input
+            if (
+                isNaN(loanAmount) ||
+                isNaN(annualRate) ||
+                isNaN(years) ||
+                loanAmount <= 0 ||
+                annualRate < 0 ||
+                years <= 0
+            ) {
+
+                error.innerHTML =
+                    "Please enter valid loan details.";
+
+                return;
+            }
+
+            error.innerHTML = "";
+
+
+            // Convert annual interest rate into monthly rate
+            let monthlyRate =
+                annualRate / 12 / 100;
+
+
+            // Convert years into months
+            let numberOfMonths =
+                years * 12;
+
+
+            let emi;
+
+
+            // EMI Formula
+            if (monthlyRate === 0) {
+
+                emi =
+                    loanAmount / numberOfMonths;
+
+            } else {
+
+                emi =
+                    loanAmount *
+                    monthlyRate *
+                    Math.pow(1 + monthlyRate, numberOfMonths)
+                    /
+                    (Math.pow(1 + monthlyRate, numberOfMonths) - 1);
+            }
+
+
+            // Total payment
+            let totalPayment =
+                emi * numberOfMonths;
+
+
+            // Total interest
+            let totalInterest =
+                totalPayment - loanAmount;
+
+
+            // Display result
+            document.getElementById("emi").innerHTML =
+                "₹" + emi.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("totalInterest").innerHTML =
+                "₹" + totalInterest.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2
+                });
+
+            document.getElementById("totalPayment").innerHTML =
+                "₹" + totalPayment.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2
+                });
+        }
+
+
+        // Reset calculator
+        function resetCalculator() {
+
+            document.getElementById("loanAmount").value = "";
+            document.getElementById("interestRate").value = "";
+            document.getElementById("loanTenure").value = "";
+
+            document.getElementById("emi").innerHTML = "₹0";
+            document.getElementById("totalInterest").innerHTML = "₹0";
+            document.getElementById("totalPayment").innerHTML = "₹0";
+
+            document.getElementById("error").innerHTML = "";
+        }
+
+    </script>
+
+</body>
+</html>
